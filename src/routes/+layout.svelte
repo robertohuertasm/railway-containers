@@ -19,6 +19,9 @@
 
 </script>
 
+<svelte:head>
+    <title>Railway Containers</title> 
+</svelte:head>
  
 <div class="flex flex-col h-screen">
   <AppHeader api={api} on:onProjectSelected={onProjectSelected} />
