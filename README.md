@@ -2,7 +2,7 @@
 
 Small project to spin up and spin down a container using the Railway GQL API.
 
-[Live example](https://railway-containers-production.up.railway.app/)
+[Live example](https://railway-containers.up.railway.app/)
 
 You'll need a token to sign in.
 
