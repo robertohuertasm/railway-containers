@@ -1,22 +1,28 @@
 <script lang="ts">
   import ProjectList from "./ProjectList.svelte";
-  import type { Api } from "$lib/api";
+	import type { Project } from "$lib/models";
+  import { createEventDispatcher } from "svelte";
 
-  export let api: Api;
+  const dispatch = createEventDispatcher();
 
-  let token = api.token;
-  let _tempToken = '';
+  export let selectedProjectId: string;
+  export let projects: Project[] = [];
+  export let token = '';
 
-  function setToken() {
-    if(api) {
-      api.token.set(_tempToken);
-    }
+  $: tmpToken = token;
+
+  function onSetToken() {
+    dispatch('setToken', tmpToken);
   }
 
-  function clearToken() {
-    _tempToken = '';
-    setToken();
+  function onClearToken() {
+    dispatch('clearToken');
   }
+
+  function onRefresh() {
+    dispatch('refresh');
+  }
+
 </script>
 
 <header class="bg-gray-800 text-white py-4 px-6 flex items-center justify-between">
@@ -25,17 +31,17 @@
     <h1 class="text-lg font-semibold">Railway Containers</h1>
   </div>
   <div class="items-center flex-auto">
-    <ProjectList api={api} on:onProjectSelected />
+    <ProjectList projects={projects} bind:selectedProjectId />
   </div>
   <div class="flex items-center">
-    {#if $token}
+    {#if token}
       <svg class="rounded-full logo w-6 h-6 md:w-8 md:h-8 mr-2" width="800px" height="800px" viewBox="0 0 24 24" fill="none">
         <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <button class="mr-4 hover:text-slate-400" on:click={clearToken}>Sign out</button>
+      <button class="mr-4 hover:text-slate-400" on:click={onClearToken}>Sign out</button>
     {:else}
-      <input class="p-2 bg-slate-300 placeholder:text-slate-500 text-black w-96" type="text" placeholder="Set your API key" bind:value={_tempToken} />
-      <button class="font-bold py-2 px-4 bg-blue-500 text-white hover:bg-blue-700" on:click={setToken}>Set Token</button>
+      <input class="p-2 bg-slate-300 placeholder:text-slate-500 text-black w-96" type="text" placeholder="Set your API key" bind:value={tmpToken} />
+      <button class="font-bold py-2 px-4 bg-blue-500 text-white hover:bg-blue-700" on:click={onSetToken}>Set Token</button>
     {/if}
   </div>
 </header>

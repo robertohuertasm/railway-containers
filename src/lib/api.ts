@@ -28,19 +28,24 @@ const RAILWAY_URI = `https://corsproxy.io/?https://backboard.railway.app/graphql
 export class Api {
 	private readonly apollo: ApolloClient<NormalizedCacheObject>;
 	public token = writable<string | undefined>(undefined);
+	private _token?: string;
 	private tokenSubs: Unsubscriber;
 
 	constructor() {
 		this.apollo = new ApolloClient({ uri: RAILWAY_URI, cache: new InMemoryCache() });
+		// read token from local storage and initialize it
+		const token = localStorage.getItem('token') ?? undefined;
+		this.token.set(token);
+		// subscription to token changes
 		this.tokenSubs = this.token.subscribe((token) => {
 			if (token) {
 				localStorage.setItem('token', token.trim());
+				this._token = token;
 			} else {
 				localStorage.removeItem('token');
+				this._token = undefined;
 			}
 		});
-		const token = localStorage.getItem('token') ?? undefined;
-		this.token.set(token);
 	}
 
 	public cache() {
@@ -57,13 +62,13 @@ export class Api {
 		force: boolean,
 		variables?: Record<string, unknown>
 	): Promise<T | undefined> {
-		if (!this.token) return undefined;
+		if (!this._token) return undefined;
 		try {
 			const result: unknown = await this.apollo.query({
 				query,
 				context: {
 					headers: {
-						authorization: `Bearer ${localStorage.getItem('token')}`
+						authorization: `Bearer ${this._token}`
 					}
 				},
 				fetchPolicy: force ? 'network-only' : undefined,
@@ -92,13 +97,13 @@ export class Api {
 		converter: Converter<T>,
 		variables?: Record<string, unknown>
 	): Promise<T | undefined> {
-		if (!this.token) return undefined;
+		if (!this._token) return undefined;
 		try {
 			const result: unknown = await this.apollo.mutate({
 				mutation,
 				context: {
 					headers: {
-						authorization: `Bearer ${localStorage.getItem('token')}`
+						authorization: `Bearer ${this._token}`
 					}
 				},
 				variables

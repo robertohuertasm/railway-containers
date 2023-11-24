@@ -13,5 +13,5 @@
   stroke-linecap="round"
   stroke-linejoin="round"
 >
-  <use href="feather-sprite.svg#{icon}" />
+  <use href="/feather-sprite.svg#{icon}" />
 </svg>
