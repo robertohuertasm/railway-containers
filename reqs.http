@@ -1,0 +1,26 @@
+@host = localhost:3000
+@token = d15465aa-3ee6-42d6-bc02-dd27051db118
+
+### health
+GET /api/health HTTP/1.1
+Host: {{host}}
+
+### version
+GET /api/version HTTP/1.1
+Host: {{host}}
+
+### query
+POST  /api/railway HTTP/1.1
+Host: {{host}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "operationName":"Projects",
+  "variables":{},
+  "query":"query Projects {\n  projects {\n    edges {\n      node {\n        id\n        name\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}"
+}
+
+
+
+

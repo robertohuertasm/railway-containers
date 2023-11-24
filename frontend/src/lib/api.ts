@@ -23,7 +23,8 @@ import {
 
 export type Converter<T> = (payload: unknown) => T;
 // NOTE: we're using a CORS proxy to avoid CORS issues
-const RAILWAY_URI = `https://corsproxy.io/?https://backboard.railway.app/graphql/v2`;
+// const RAILWAY_URI = `https://corsproxy.io/?https://backboard.railway.app/graphql/v2`;
+const RAILWAY_URI = import.meta.env.DEV ? `http://127.0.0.1:3000/api/railway` : `/api/railway`;
 
 export class Api {
 	private readonly apollo: ApolloClient<NormalizedCacheObject>;

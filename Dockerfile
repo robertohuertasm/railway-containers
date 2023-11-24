@@ -1,14 +1,30 @@
 # ---- Base Node ----
-FROM node:20 AS build
+FROM node:20 AS build-frontend
 WORKDIR /app
-COPY ./ ./
-RUN npm install
+COPY ./frontend ./
+RUN cd npm install
 RUN npm run build
 
-# --- Release with Alpine ----
-FROM node:20-alpine AS release
-WORKDIR /app
-COPY --from=build /app/build ./build
-RUN npm install -g serve
-EXPOSE 8080
-CMD ["serve", "-s", "build", "-l", "8080"]
+FROM rust:stable AS build-rust
+# Add our source code.
+WORKDIR /server
+COPY ./src .
+COPY ./Cargo.lock .
+COPY ./Cargo.toml .
+# Build our application.
+RUN cargo build --release
+
+FROM debian:bullseye-slim
+RUN set -eux; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends \
+  ca-certificates \
+  gcc \
+  libc6-dev \
+  ; \
+  rm -rf /var/lib/apt/lists/*;
+# getting what we need from the builder
+COPY --from=build-frontend /app/build ./build
+COPY --from=build-rust /server/target/release/railway-containers /
+EXPOSE 3000
+CMD ["/railway-containers"]
