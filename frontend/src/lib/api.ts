@@ -9,7 +9,8 @@ import {
 	ApolloClient,
 	type DocumentNode,
 	InMemoryCache,
-	type NormalizedCacheObject
+	type NormalizedCacheObject,
+	isApolloError
 } from '@apollo/client/core';
 import type { Project, ProjectInfo, Service } from './models';
 import { writable, type Unsubscriber } from 'svelte/store';
@@ -45,6 +46,7 @@ export class Api {
 			} else {
 				localStorage.removeItem('token');
 				this._token = undefined;
+				this.apollo.resetStore();
 			}
 		});
 	}
@@ -55,6 +57,16 @@ export class Api {
 
 	public dispose() {
 		this.tokenSubs?.();
+	}
+
+	private handleNetworkError(e: unknown) {
+		const error = e as Error;
+		if (isApolloError(error)) {
+			if (error.message === 'Not Authorized') {
+				this.token.set(undefined);
+			}
+			console.error(error);
+		}
 	}
 
 	private async query<T>(
@@ -77,7 +89,7 @@ export class Api {
 			});
 			return converter(result);
 		} catch (error) {
-			console.error(error);
+			this.handleNetworkError(error);
 		}
 		return undefined;
 	}
