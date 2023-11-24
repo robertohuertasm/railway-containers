@@ -12,11 +12,15 @@ const RAILWAY_API: &str = "https://backboard.railway.app/graphql/v2";
 
 pub fn configuration(cfg: &mut ServiceConfig) {
     // cors
-    let enable_cors = std::env::var("ENABLE_CORS").map_or(false, |x| x != "0");
-    let cors = if enable_cors {
-        Cors::default().allowed_methods(vec!["GET", "POST"])
-    } else {
+    let cors_origin = std::env::var("CORS_ORIGIN").unwrap_or_default();
+    let cors = if cors_origin.is_empty() {
         Cors::permissive()
+    } else {
+        Cors::default()
+            .allowed_methods(vec!["GET", "POST"])
+            .allowed_origin_fn(move |origin, _req_head| {
+                origin.as_bytes().ends_with(cors_origin.as_bytes())
+            })
     };
 
     // mind the order of the routes!
