@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_web::{
     http::header::Header,
     web::{self, Json, ServiceConfig},
@@ -10,9 +11,18 @@ use tracing::instrument;
 const RAILWAY_API: &str = "https://backboard.railway.app/graphql/v2";
 
 pub fn configuration(cfg: &mut ServiceConfig) {
+    // cors
+    let enable_cors = std::env::var("ENABLE_CORS").map_or(false, |x| x != "0");
+    let cors = if enable_cors {
+        Cors::default().allowed_methods(vec!["GET", "POST"])
+    } else {
+        Cors::permissive()
+    };
+
     // mind the order of the routes!
     cfg.service(
         web::scope("/api")
+            .wrap(cors)
             .route("/railway", web::get().to(railway))
             .route("/railway", web::post().to(railway))
             .route("/health", web::get().to(health))
