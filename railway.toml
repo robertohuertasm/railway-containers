@@ -1,0 +1,4 @@
+[build]
+watchPatterns = ["frontend/src/**/*", "frontend/static/**/*", "frontend/package.json", "frontend/svelte.config.js", "src/**/*", "Dockerfile", "railway.toml"]
+
+
