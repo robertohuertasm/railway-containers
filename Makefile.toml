@@ -1,0 +1,28 @@
+[tasks.api-build]
+workspace = false
+command = "cargo"
+args = ["build"]
+
+[tasks.api-run]
+command = "cargo"
+args = ["run"]
+
+[tasks.api-watch]
+command = "cargo"
+watch = true
+args = ["run"]
+
+[tasks.web-build]
+script = "cd frontend && npm run build"
+
+[tasks.web-init]
+script = "cd frontend && npm install"
+
+[tasks.web-serve]
+script = "cd frontend && npm run dev"
+
+[tasks.web-run]
+run_task = { name = ["web-serve", "api-run"], parallel = true }
+
+[tasks.web-bootstrap]
+run_task = { name = ["web-init", "web-build"] } 
